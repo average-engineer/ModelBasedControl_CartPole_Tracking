@@ -37,7 +37,7 @@ w_0 = [0;0.5;0;0];
 
 %% Disturbance force on the control system
 % variable for deciding the type of disturbance force
-dist = 'Static'; % None/Impulse/Harmonic/Static
+dist = 'Harmonic'; % None/Impulse/Harmonic/Static
 
 switch dist
     case 'None'
@@ -76,7 +76,7 @@ end
 % Harmonic trjaectory desired for the pole joint angle and the cart should
 % come to rest at its initial starting position
 
-Case = 'Case2';
+Case = 'Case1';
 
 switch Case
     case 'Case1'
@@ -116,10 +116,10 @@ end
 % PD Controller is made use of 
 
 % Proportional Gain
-Kp = [2,-1;-1,2];
+Kp = [2,0;0,2];
 
 % Derivative Gain
-Kd = [2,-1;-1,2];
+Kd = [2,0;0,2];
 
 %% Solving the error dynamics equation
 % State Vector: [Cart Posn Error;Pole Angle Error;Cart Velocity Error;Pole
