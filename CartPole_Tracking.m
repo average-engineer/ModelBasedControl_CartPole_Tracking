@@ -37,14 +37,14 @@ w_0 = [0;0.5;0;0];
 
 %% Disturbance force on the control system
 % variable for deciding the type of disturbance force
-dist = 'Harmonic'; % None/Impulse/Harmonic/Static
+dist = 'Impulse'; % None/Impulse/Harmonic/Static
 
 switch dist
     case 'None'
         % No external disturbance force on the system
         f_dist = zeros(2,1,length(t_span));
     
-    case 'Impulse'
+    case 'Impulse'  
         % The disturbance force is modelled as an unit impulse function force
         % applied horizontally on the cart
         % Resembles a hand flicking the cart
@@ -54,7 +54,7 @@ switch dist
         a = 5;
         
         % Magnitude of disturbance force
-        F = 5;
+        F = 200;
         f_dist = ImpulseForce(t_span,a,F,dt);
         
     case 'Harmonic'
@@ -130,7 +130,7 @@ wd_0 = [posn_CartDesired(1);posn_PoleDesired(1);vel_CartDesired(1);vel_PoleDesir
 % Error Initial Condition
 e_0 = wd_0 - w_0;
 
-[t,e] = ode45(@(t,e)ErrorDynamics_SSR(t,e,Kp,Kd,dist),t_span,e_0);
+[t,e] = ode45(@(t,e)ErrorDynamics_SSR(t,e,Kp,Kd,m,M,L,dist,Case),t_span,e_0);
 e = e';
 
 % State Error Weighing Matrix
@@ -176,7 +176,7 @@ for ii = 1:length(t_span)
     
     % Actuator Effort Matrix
     u_act(:,ii) = M_mat(:,:,ii)*(Kp*[e(1,ii);e(2,ii)] + Kd*[e(3,ii);e(4,ii)] + desired_GenCoorAcc(:,ii)) + ...
-                  C_mat(:,:,ii)*[vel_CartCurrent(ii);vel_PoleCurrent(ii)] + K_mat(:,:,ii); 
+                  C_mat(:,:,ii)*[vel_CartCurrent(ii);vel_PoleCurrent(ii)] + K_mat(:,:,ii) - f_dist(:,ii); 
 end
 
 %% Plotting Results
