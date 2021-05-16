@@ -16,7 +16,7 @@ switch desired
     case 'Case1'
         wd = [0;sin(t);0;cos(t)];
     case 'Case2'
-        wd = [sin(t);0;cos(t);0];
+        wd = [sin(t);0;cos(t);0];   
 end
 
 % Current state vector
