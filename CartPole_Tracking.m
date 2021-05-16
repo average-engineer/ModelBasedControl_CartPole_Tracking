@@ -5,9 +5,9 @@ format bank
 
 %% Description
 % Model Based Control System design for trajectory following of a Cart with
-% an Inverted Pole. For now, it is assumed that both the cart and the pole
-% are actuated and there are 2 controller outputs (horizontal force on cart
-% and torque on pole joint).
+% an Inverted Pole. 
+% Double Actuation is assumed i.e. both the Cart and th e Pole are
+% actuated
 % Since it is a tracking problem, thus linearization of the system can't be
 % assumed using small angle approximation. Model based control helps in
 % converting the non-linear dynamic equations to linearized Error Dynamics
@@ -126,7 +126,7 @@ Kd = [2,0;0,2];
 % Angular Velocity Error]
 
 % Desired state vector at t = 0
-wd_0 = [posn_   CartDesired(1);posn_PoleDesired(1);vel_CartDesired(1);vel_PoleDesired(1)];
+wd_0 = [posn_CartDesired(1);posn_PoleDesired(1);vel_CartDesired(1);vel_PoleDesired(1)];
 % Error Initial Condition
 e_0 = wd_0 - w_0;
 
