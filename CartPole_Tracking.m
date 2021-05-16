@@ -126,7 +126,7 @@ Kd = [2,0;0,2];
 % Angular Velocity Error]
 
 % Desired state vector at t = 0
-wd_0 = [posn_CartDesired(1);posn_PoleDesired(1);vel_CartDesired(1);vel_PoleDesired(1)];
+wd_0 = [posn_   CartDesired(1);posn_PoleDesired(1);vel_CartDesired(1);vel_PoleDesired(1)];
 % Error Initial Condition
 e_0 = wd_0 - w_0;
 
