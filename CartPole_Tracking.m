@@ -234,12 +234,12 @@ switch act
         % PD Controller is made use of
         
         % Proportional Gain
-        Kp = [1,-0.1;-0.1,1];
+        Kp = [1,-0.1;-0.5,1];
         
         % Derivative Gain
-        Kd = [1,-0.1;-0.1,1];
+        Kd = [1,-0.5;-0.1,1];
         
-        [t,w] = ode45(@(t,w)ClosedLoopDynamics_NL(t,w,m,M,g,L,Kp,Kd,Case),t_span,w_0);  
+        [t,w] = ode45(@(t,w)ClosedLoopDynamics_NL(t,w,m,M,g,L,Kp,Kd,dist,Case),t_span,w_0);  
         
         %% State errors 
         % Cart Position Error
@@ -265,6 +265,26 @@ switch act
         plot(t_span,posn_PoleDesired,'-.','color','k','linewidth',2)
         grid on
         legend('Current','Error','Desired')
+        
+        %% Actuator Effort
+        % Only one actuator is activated
+        for ii = 1:length(t_span)
+            %% Non-Linear dynamic coefficient matrices
+            % Mass Matrix
+            M_mat(:,:,ii) = [M + m, m*L*cos(w(ii,2))/2;
+                m*L*cos(w(ii,2))/2, (m*(L)^2)/3];
+            
+            % Damping Matrix
+            C_mat(:,:,ii) = [0,(-m*L*sin(w(ii,2))*w(ii,4))/2;
+                (-m*L*sin(w(ii,2))*w(ii,4))/2, 0 ];
+            
+            % Stiffness Matrix
+            K_mat(:,:,ii) = [0 ; (-m*g*L*sin(w(ii,2)))/2];
+            
+            % Actuator Effort Matrix
+            u_act(:,ii) = [1,0]*(M_mat(:,:,ii)*(Kp*[e(ii,1);e(ii,2)] + Kd*[e(ii,3);e(ii,4)] + desired_GenCoorAcc(:,ii)) + ...
+                C_mat(:,:,ii)*[w(ii,3);w(ii,4)] + K_mat(:,:,ii) - f_dist(:,ii));
+        end
         
 end
         

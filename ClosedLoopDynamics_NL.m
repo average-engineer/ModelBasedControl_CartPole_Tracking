@@ -1,4 +1,4 @@
-function [dw_dt] = ClosedLoopDynamics_NL(t,w,m,M,g,L,Kp,Kd,desired)
+function [dw_dt] = ClosedLoopDynamics_NL(t,w,m,M,g,L,Kp,Kd,disturbance,desired)
 
 % Creates the state space model of the non-linear dynamic equation of
 % inverted Cart Pole System with only one actuation
@@ -10,6 +10,7 @@ function [dw_dt] = ClosedLoopDynamics_NL(t,w,m,M,g,L,Kp,Kd,desired)
 % w2: Pole angle (radians)
 % w3: Cart Velocity (m/s)
 % w4: Pole angular velocity (rad/s)
+
 
 % Desired trajectory
 switch desired
@@ -24,6 +25,27 @@ switch desired
         Xd_ddot = [-sin(t);0];
 end
 
+
+% Disturbance Force
+switch disturbance
+    case 'None'
+        f = [0;0];
+        
+    case 'Impulse'
+        if t<5
+            f = [0;0]; 
+        elseif t>=5 && t<= 5 + (1/5)
+            f = [200;0];
+        else
+            f = [0;0];
+        end
+        
+    case 'Harmonic'
+        f = [5*sin(10*t);0];
+        
+    case 'Static'
+        f = [5;0];       
+end
 
 % Non-Linear dynamic coefficient matrices
 % Mass Matrix
@@ -48,7 +70,7 @@ X_dot = [w(3);w(4)];
 
 dwdt_12 = X_dot;
 
-dwdt_34 = (M_mat\eye(size(M_mat)))*(M1*(Xd_ddot + Kd*Xd_dot + Kp*Xd - Kp*X) - C1*X_dot - K1);
+dwdt_34 = (M_mat\eye(size(M_mat)))*(M1*(Xd_ddot + Kd*Xd_dot + Kp*Xd - Kp*X) - C1*X_dot - K1 - [1,0;0,0]*f);
 
 dw_dt = [dwdt_12;dwdt_34];
     
