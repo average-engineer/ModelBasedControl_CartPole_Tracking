@@ -1,4 +1,4 @@
-function [dw_dt] = ClosedLoopDynamics_NL(t,w,m,M,g,L,Kp,Kd,disturbance,desired)
+function [dw_dt] = ClosedLoopDynamics_NL(t,w,m,M,g,L,Kp,Kd,disturbance,desired,actmat)
 
 % Creates the state space model of the non-linear dynamic equation of
 % inverted Cart Pole System with only one actuation
@@ -60,9 +60,12 @@ C_mat = [0,(-m*L*sin(w(2))*w(4))/2;
 K_mat = [0;(-m*g*L*sin(w(2)))/2];
 
 % Modified coefficient matrices for single actuation
-M1 = [1,0;0,0]*M_mat;
-K1 = [0,0;0,1]*K_mat;
-C1 = [0,0;0,1]*C_mat + [1,0;0,0]*M_mat*Kd;
+% M1 = [1,0;0,0]*M_mat;
+M1 = [0;1]*actmat*M_mat;
+% K1 = [0,0;0,1]*K_mat;
+K1 = (eye(2,2) - ([0;1]*actmat))*K_mat;
+% C1 = [0,0;0,1]*C_mat + [1,0;0,0]*M_mat*Kd;
+C1 = (eye(2,2) - ([0;1]*actmat))*C_mat + M1*Kd;
 
 % Partitioning state vectors into general coordinates
 X = [w(1);w(2)];
@@ -70,7 +73,7 @@ X_dot = [w(3);w(4)];
 
 dwdt_12 = X_dot;
 
-dwdt_34 = (M_mat\eye(size(M_mat)))*(M1*(Xd_ddot + Kd*Xd_dot + Kp*Xd - Kp*X) - C1*X_dot - K1 - [1,0;0,0]*f);
+dwdt_34 = (M_mat\eye(size(M_mat)))*(M1*(Xd_ddot + Kd*Xd_dot + Kp*Xd - Kp*X) - C1*X_dot - K1 - [0;1]*actmat*f);
 
 dw_dt = [dwdt_12;dwdt_34];
     

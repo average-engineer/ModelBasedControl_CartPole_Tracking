@@ -34,14 +34,14 @@ g = 9.81; %m/s^2
 dt = 0.01;
 
 % Time Vector
-t_span = [0:dt:100];
+t_span = [0:dt:10];
 
 % Initial Conditions
 w_0 = [0;0.5;0;0];
 
 %% Disturbance force on the control system
 % variable for deciding the type of disturbance force
-dist = 'Static'; % None/Impulse/Harmonic/Static
+dist = 'None'; % None/Impulse/Harmonic/Static
 
 switch dist
     case 'None'
@@ -230,16 +230,19 @@ switch act
         
     %% Only Cart is actuated 
     case 'actCart'
+        %% Single actuation matrix : singleact
+        % f(single actuation) = singleact*F(double actuation)
+        singleact = [0,1];
         %% Controller Gains
         % PD Controller is made use of
         
         % Proportional Gain
-        Kp = [1,-0.1;-0.5,1];
+        Kp = [2,-2;-2,2];
         
         % Derivative Gain
-        Kd = [1,-0.5;-0.1,1];
+        Kd = [2,-2;-2,2];
         
-        [t,w] = ode45(@(t,w)ClosedLoopDynamics_NL(t,w,m,M,g,L,Kp,Kd,dist,Case),t_span,w_0);  
+        [t,w] = ode45(@(t,w)ClosedLoopDynamics_NL(t,w,m,M,g,L,Kp,Kd,dist,Case,singleact),t_span,w_0);  
         
         %% State errors 
         % Cart Position Error
