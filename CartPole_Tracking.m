@@ -34,7 +34,7 @@ g = 9.81; %m/s^2
 dt = 0.01;
 
 % Time Vector
-t_span = [0:dt:10];
+t_span = [0:dt:100];
 
 % Initial Conditions
 w_0 = [0;0.5;0;0];
@@ -228,23 +228,25 @@ switch act
             w(i,:) = [posn_CartCurrent(i);posn_PoleCurrent(i);vel_CartCurrent(i);vel_PoleCurrent(i)];
         end
         
-    %% Only Cart is actuated 
+        
+        
+    %% Only Cart is actuated
     case 'actCart'
         %% Single actuation matrix : singleact
         % f(single actuation) = singleact*F(double actuation)
-        singleact = [0,1];
+        singleact = [5,0];
         %% Controller Gains
         % PD Controller is made use of
         
         % Proportional Gain
-        Kp = [2,-2;-2,2];
+        Kp = [1,-0.01;0.01,-1];
         
         % Derivative Gain
-        Kd = [2,-2;-2,2];
+        Kd = [1,0.01;-0.01,-1];
         
-        [t,w] = ode45(@(t,w)ClosedLoopDynamics_NL(t,w,m,M,g,L,Kp,Kd,dist,Case,singleact),t_span,w_0);  
+        [t,w] = ode45(@(t,w)ClosedLoopDynamics_NL(t,w,m,M,g,L,Kp,Kd,dist,Case,singleact),t_span,w_0);
         
-        %% State errors 
+        %% State errors
         % Cart Position Error
         e(:,1) = posn_CartDesired' - w(:,1);
         e(:,2) = posn_PoleDesired' - w(:,2);
@@ -285,9 +287,9 @@ switch act
             K_mat(:,:,ii) = [0 ; (-m*g*L*sin(w(ii,2)))/2];
             
             % Actuator Effort Matrix
-            u_act(:,ii) = [1,0]*(M_mat(:,:,ii)*(Kp*[e(ii,1);e(ii,2)] + Kd*[e(ii,3);e(ii,4)] + desired_GenCoorAcc(:,ii)) + ...
-                C_mat(:,:,ii)*[w(ii,3);w(ii,4)] + K_mat(:,:,ii) - f_dist(:,ii));
+            u_act(:,ii) = [singleact*(M_mat(:,:,ii)*(desired_GenCoorAcc(:,ii) + Kd*[e(ii,3);e(ii,4)] + ...
+                Kp*[e(ii,1);e(ii,2)]) + C_mat(:,:,ii)*[vel_CartDesired(ii);vel_PoleDesired(ii)] + K_mat(:,:,ii));0] - f_dist(:,:,ii);
         end
         
 end
-        
+

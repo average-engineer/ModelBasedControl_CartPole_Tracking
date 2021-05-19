@@ -59,21 +59,17 @@ C_mat = [0,(-m*L*sin(w(2))*w(4))/2;
 % Stiffness matrix
 K_mat = [0;(-m*g*L*sin(w(2)))/2];
 
-% Modified coefficient matrices for single actuation
-% M1 = [1,0;0,0]*M_mat;
-M1 = [0;1]*actmat*M_mat;
-% K1 = [0,0;0,1]*K_mat;
-K1 = (eye(2,2) - ([0;1]*actmat))*K_mat;
-% C1 = [0,0;0,1]*C_mat + [1,0;0,0]*M_mat*Kd;
-C1 = (eye(2,2) - ([0;1]*actmat))*C_mat + M1*Kd;
 
 % Partitioning state vectors into general coordinates
 X = [w(1);w(2)];
 X_dot = [w(3);w(4)];
 
+% Actuator effort for single actuation
+u = [actmat*(M_mat*(Xd_ddot + Kd*(Xd_dot - X_dot) + Kp*(Xd - X)) + C_mat*Xd_dot + K_mat);0] - f;
+
 dwdt_12 = X_dot;
 
-dwdt_34 = (M_mat\eye(size(M_mat)))*(M1*(Xd_ddot + Kd*Xd_dot + Kp*Xd - Kp*X) - C1*X_dot - K1 - [0;1]*actmat*f);
+dwdt_34 = M_mat\eye(size(M_mat))*(u - C_mat*X_dot - K_mat);
 
 dw_dt = [dwdt_12;dwdt_34];
     
