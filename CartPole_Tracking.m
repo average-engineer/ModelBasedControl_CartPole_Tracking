@@ -34,7 +34,7 @@ g = 9.81; %m/s^2
 dt = 0.01;
 
 % Time Vector
-t_span = [0:dt:100];
+t_span = [0:dt:10];
 
 % Initial Conditions
 w_0 = [0;0.5;0;0];
@@ -80,7 +80,7 @@ end
 % Harmonic trjaectory desired for the pole joint angle and the cart should
 % come to rest at its initial starting position
 
-Case = 'Case1';
+Case = 'Case3';
 
 switch Case
     case 'Case1'
@@ -110,6 +110,20 @@ switch Case
         acc_CartDesired = -sin(t_span);
         acc_PoleDesired = zeros(size(t_span));
         
+    % Case for Regulation
+    case 'Case3'
+        % Pole joint angle desired trajectory
+        posn_CartDesired = zeros(size(t_span));
+        vel_CartDesired = zeros(size(t_span));
+        
+        % Cart desired trajectory
+        posn_PoleDesired = zeros(size(t_span));
+        vel_PoleDesired = zeros(size(t_span));
+        
+        % Desired General coordinate Accelerations
+        acc_CartDesired = zeros(size(t_span));
+        acc_PoleDesired = zeros(size(t_span));
+        
 end
 
 for i = 1:length(t_span)
@@ -129,10 +143,10 @@ switch act
         % PD Controller is made use of
         
         % Proportional Gain
-        Kp = [2,0;0,2];
+        Kp = [2,-1;-1,2];
         
         % Derivative Gain
-        Kd = [2,0;0,2];
+        Kd = [2,-1;-1,2];
         
         %% Solving the error dynamics equation
         % State Vector: [Cart Posn Error;Pole Angle Error;Cart Velocity Error;Pole
@@ -233,18 +247,19 @@ switch act
     %% Only Cart is actuated
     case 'actCart'
         %% Single actuation matrix : singleact
-        % f(single actuation) = singleact*F(double actuation)
-        singleact = [5,0];
+        % u(single actuation) = singleact*u(double actuation)
+        % For double actuation, singleact = [1,1]
+        singleact = [1,0];
         %% Controller Gains
         % PD Controller is made use of
         
         % Proportional Gain
-        Kp = [1,-0.01;0.01,-1];
+        Kp = [10,-5;-5,10];
         
         % Derivative Gain
-        Kd = [1,0.01;-0.01,-1];
+        Kd = [10,-5;-5,10];
         
-        [t,w] = ode45(@(t,w)ClosedLoopDynamics_NL(t,w,m,M,g,L,Kp,Kd,dist,Case,singleact),t_span,w_0);
+        [t,w] = ode45(@(t,w)ClosedLoopDynamics_SA(t,w,m,M,g,L,Kp,Kd,dist,Case,singleact),t_span,w_0);
         
         %% State errors
         % Cart Position Error
